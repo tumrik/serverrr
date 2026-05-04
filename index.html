@@ -5,64 +5,58 @@
 <title>Задание</title>
 </head>
 
-<body style="background:#0f172a;color:white;text-align:center;font-family:Arial">
+<body style="background:#0b1a2a;color:white;text-align:center;margin-top:100px;">
 
 <h1>Выполни задание</h1>
 
-<button onclick="startTask()">Начать</button>
+<button onclick="start()">Начать</button>
 
-<div id="captchaBox" style="display:none;margin-top:20px;">
-    <p id="captchaQuestion"></p>
-    <input id="captchaAnswer" placeholder="Ответ">
-    <button onclick="checkCaptcha()">Подтвердить</button>
+<div id="task" style="display:none;margin-top:20px;">
+    <p>Сколько будет 2 + 6?</p>
+    <input id="answer" type="text">
+    <button onclick="check()">Подтвердить</button>
 </div>
 
 <script>
-const API = "https://earnball.onrender.com";
-const SECRET = "Ap41daLd";
+const API = "https://earnball.onrender.com"
+const BOT = "https://t.me/teen_money_star_bot"
 
-let correct = 0;
-let click_id = null;
+const params = new URLSearchParams(window.location.search)
+const click_id = params.get("click_id")
 
-function startTask() {
-    let a = Math.floor(Math.random()*10);
-    let b = Math.floor(Math.random()*10);
-
-    correct = a + b;
-    click_id = Date.now().toString();
-
-    document.getElementById("captchaQuestion").innerText =
-        `Сколько будет ${a} + ${b}?`;
-
-    document.getElementById("captchaBox").style.display = "block";
+function start(){
+    document.getElementById("task").style.display = "block"
 }
 
-function checkCaptcha() {
-    let ans = document.getElementById("captchaAnswer").value;
+async function check(){
+    const ans = document.getElementById("answer").value
 
-    if (parseInt(ans) !== correct) {
-        alert("Ошибка");
-        return;
+    if(ans != "8"){
+        alert("Неправильно")
+        return
     }
 
-    let delay = 5000 + Math.random()*10000;
-
-    setTimeout(() => {
-
-        fetch(API + "/visit", {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({
+    try {
+        // ✅ отправка на сервер
+        await fetch(API + "/visit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
                 click_id: click_id,
-                secret: SECRET
+                secret: "Ap41daLd"
             })
-        });
+        })
 
-        // переход в бота
-        window.location.href =
-            `https://t.me/teen_money_star_bot?start=${click_id}`;
+        // ⏳ даём серверу время
+        setTimeout(() => {
+            window.location.href = BOT + "?start=" + click_id
+        }, 1000)
 
-    }, delay);
+    } catch(e) {
+        alert("Ошибка соединения")
+    }
 }
 </script>
 
