@@ -1,61 +1,68 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Задание</title>
+    <meta charset="UTF-8">
+    <title>Задание</title>
 </head>
-
-<body style="background:#0b1a2a;color:white;text-align:center;margin-top:100px;">
+<body style="background:#0b1a2a;color:white;text-align:center;font-family:sans-serif">
 
 <h1>Выполни задание</h1>
 
 <button onclick="start()">Начать</button>
 
-<div id="task" style="display:none;margin-top:20px;">
-    <p>Сколько будет 2 + 6?</p>
-    <input id="answer" type="text">
-    <button onclick="check()">Подтвердить</button>
-</div>
+<p id="question"></p>
+
+<input id="answer">
+<button onclick="checkAnswer()">Подтвердить</button>
 
 <script>
-const API = "https://earnball.onrender.com"
-const BOT = "https://t.me/teen_money_star_bot"
+const API_URL = "https://earnball.onrender.com";
+const SECRET = "Ap41daLd";
 
-const params = new URLSearchParams(window.location.search)
-const click_id = params.get("click_id")
+const urlParams = new URLSearchParams(window.location.search);
+const click_id = urlParams.get("click_id");
 
-function start(){
-    document.getElementById("task").style.display = "block"
+let a = 0;
+let b = 0;
+
+function start() {
+    a = Math.floor(Math.random() * 10);
+    b = Math.floor(Math.random() * 10);
+
+    document.getElementById("question").innerText = `Сколько будет ${a} + ${b}?`;
 }
 
-async function check(){
-    const ans = document.getElementById("answer").value
+async function checkAnswer() {
+    const userAnswer = document.getElementById("answer").value;
 
-    if(ans != "8"){
-        alert("Неправильно")
-        return
+    if (!click_id) {
+        alert("Ошибка: нет click_id");
+        return;
+    }
+
+    if (parseInt(userAnswer) !== a + b) {
+        alert("Неверно ❌");
+        return;
     }
 
     try {
-        // ✅ отправка на сервер
-        await fetch(API + "/visit", {
+        // отмечаем посещение
+        await fetch(API_URL + "/visit", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 click_id: click_id,
-                secret: "Ap41daLd"
+                secret: SECRET
             })
-        })
+        });
 
-        // ⏳ даём серверу время
-        setTimeout(() => {
-            window.location.href = BOT + "?start=" + click_id
-        }, 1000)
+        alert("Задание выполнено ✅");
 
-    } catch(e) {
-        alert("Ошибка соединения")
+        // возвращаем в бота
+        window.location.href = "https://t.me/teen_money_star_bot?start=" + click_id;
+
+    } catch (e) {
+        alert("Ошибка соединения ❌");
     }
 }
 </script>
